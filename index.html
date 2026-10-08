@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday cuthuxo.o</title>
+    <!-- Font có bộ ký tự tiếng Việt; font hệ thống trong CSS là phương án dự phòng. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,500&family=Playfair+Display:wght@500;600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Màn hình chính nở hoa ban đầu -->
+    <main id="bouquet" aria-label="Bó hoa kỹ thuật số, chạm để nở">
+        <canvas id="flowerCanvas" aria-hidden="true"></canvas>
+
+        <!-- Giai đoạn 1: Dòng chữ gợi ý chạm để hoa nở -->
+        <div class="click-hint" id="bloomHint">Chạm để hoa nở</div>
+
+        <!-- Giai đoạn 2: Chỉ hiện chữ Tap to reveal sau khi hoa nở xong -->
+        <div class="reveal-hint" id="revealHint">
+            <span class="reveal-text">Tap to reveal</span>
+        </div>
+    </main>
+
+    <!-- Giai đoạn 3: Phân cảnh Lá thư & Vườn hoa ly thơ mộng -->
+    <section id="letterScene" class="letter-scene hidden" aria-hidden="true">
+        <!-- Nền tranh màu nước hoa ly nghệ thuật (Hình 2) hòa sắc pastel dịu dàng, chuyển động thở nhẹ -->
+        <div class="garden-bg-layer" id="gardenBgLayer"></div>
+        <div class="garden-bg-overlay"></div>
+
+        <!-- Canvas Vườn hoa ly sống động tự nhiên (Lush Lily Meadow & Cánh hoa rơi & Đóm đốm lung linh) -->
+        <canvas id="gardenCanvas" class="garden-canvas"></canvas>
+        <div class="meadow-critters" id="meadowCritters" role="group" aria-label="Các bạn thú nhỏ trong vườn. Di chuyển con trỏ để các bạn đi theo."></div>
+
+        <!-- Khung lá thư chính giữa -->
+        <div class="letter-wrapper" id="letterWrapper">
+            <div class="letter-card">
+                <!-- Ảnh lá thư đã được thuật toán tự động tách nền trong suốt -->
+                <img id="letterImg" class="letter-paper-img" alt="Lá thư sinh nhật" />
+
+                <!-- Nội dung chữ viết tay trên dòng kẻ lá thư -->
+                <div class="letter-overlay">
+                    <div class="letter-inner" contenteditable="true" spellcheck="false" title="Bạn có thể chỉnh sửa lời chúc tùy thích">
+                        <div class="letter-header">Happy Birthday cuthuxo.o!</div>
+                        <div class="letter-body">
+                            <span>Gửi bbi trong ngày đặc biệt này.</span>
+                            <span>Chúc em tuổi mới luôn rực rỡ,</span>
+                            <span>xink đẹp và thuần khiết như</span>
+                            <span>những đóa hoa ly,</span>
+                            <span>mọi ước mơ ấp ủ đều sẽ đạt được</span>
+                            <span>ngọt ngào, hạnh phúc</span>
+                            <span>mỗi ngày trôi qua đều đong đầy</span>
+                            <span>niềm vui và yêu thương anh nhìu</span>
+                            <span>hơn! 🌸</span>
+                        </div>
+                        <div class="letter-footer">
+                            With all my love ♡
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ánh sáng lung linh huyền ảo -->
+        <div class="ambient-glow"></div>
+    </section>
+
+    <!-- Nút Music Player Spotify Mini (Lana Del Rey - Radio) -->
+    <aside class="spotify-widget" id="spotifyWidget">
+        <div class="spotify-card">
+            <!-- Ảnh bìa Album Born to Die -->
+            <div class="spotify-cover-wrap">
+                <img class="spotify-cover" id="spotifyCover" src="https://upload.wikimedia.org/wikipedia/en/2/29/BornToDieAlbumCover.png" alt="Born To Die - Lana Del Rey" onerror="this.src='./Picture/born_to_die.jpg'" />
+            </div>
+
+            <!-- Thông tin bài hát -->
+            <div class="spotify-info">
+                <div class="spotify-title" title="Radio">Radio</div>
+                <div class="spotify-artist" title="Lana Del Rey">Lana Del Rey</div>
+                <span class="spotify-badge" id="musicStatus">Lana Del Rey</span>
+            </div>
+
+            <!-- Nút điều khiển & Logo Spotify -->
+            <div class="spotify-actions">
+                <!-- Logo Spotify góc trên bên phải -->
+                <div class="spotify-brand" title="Spotify">
+                    <svg class="spotify-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.495 17.303c-.216.354-.678.468-1.032.252-2.825-1.727-6.38-2.118-10.568-1.162-.405.093-.812-.158-.904-.563-.093-.405.158-.813.563-.905 4.582-1.047 8.513-.598 11.69 1.346.353.216.467.678.251 1.032zm1.465-3.255c-.272.441-.849.584-1.29.312-3.234-1.988-8.163-2.564-11.988-1.402-.497.151-1.026-.135-1.177-.633-.151-.497.135-1.026.633-1.177 4.375-1.332 9.807-.687 13.51 1.589.442.272.584.85.312 1.311zm.126-3.39c-3.877-2.302-10.28-2.515-13.987-1.389-.594.18-1.226-.156-1.407-.751-.18-.594.156-1.226.751-1.407 4.257-1.293 11.317-1.041 15.792 1.616.536.319.712 1.015.393 1.551-.318.536-1.014.712-1.55 3.39z"/>
+                    </svg>
+                </div>
+
+                <!-- Hàng nút: Lưu (+), Thêm (...), và Nút Play tròn to -->
+                <div class="spotify-controls">
+                    <button class="spotify-btn-icon add-btn" id="spotifyAddBtn" title="Lưu bài hát" aria-label="Lưu bài hát">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="16"></line>
+                        </svg>
+                    </button>
+
+                    <button class="spotify-btn-icon more-btn" title="Tùy chọn khác" aria-label="Tùy chọn khác">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="5" cy="12" r="2"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                            <circle cx="19" cy="12" r="2"></circle>
+                        </svg>
+                    </button>
+
+                    <button class="spotify-play-btn" id="spotifyPlayBtn" title="Phát / Tạm dừng" aria-label="Phát / Tạm dừng">
+                        <svg class="play-svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5.14v14l11-7-11-7z"/>
+                        </svg>
+                        <svg class="pause-svg" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="floating-notes-container" id="floatingNotes"></div>
+    </aside>
+
+    <!-- Audio phát nhạc Radio của Lana Del Rey -->
+    <audio id="bgMusic" src="./Lana%20Del%20Rey%20-%20Radio.mp3" loop preload="auto"></audio>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

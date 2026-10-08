@@ -1,0 +1,1087 @@
+:root {
+    --pastel-bg: #e8dfe3;
+    --dreamy-bg: radial-gradient(ellipse at 50% 35%, #fff6f9 0%, #f6e8f0 40%, #ebdce6 75%, #ddc8d7 100%);
+    --accent-pink: #d96f92;
+    --text-primary: #4a3440;
+    --text-romantic: #7e3c59;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Quicksand', -apple-system, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background: var(--pastel-bg);
+    transition: background 1.8s ease;
+}
+
+body.reveal-mode {
+    background: var(--dreamy-bg);
+}
+
+
+/* ==========================================================================
+   1. MAIN BOUQUET (Canvas màn hoa nở ban đầu)
+   ========================================================================== */
+
+#bouquet {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    cursor: pointer;
+    background: transparent;
+    transition: opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1), transform 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#bouquet.fading {
+    opacity: 0;
+    transform: scale(1.04);
+    pointer-events: none;
+}
+
+#bouquet.hidden {
+    display: none;
+}
+
+#flowerCanvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+
+/* Gợi ý 1: Chạm để hoa nở */
+
+.click-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+    transform: translate(-50%, -50%);
+    color: #704657;
+    font-size: clamp(16px, 2.4vw, 21px);
+    font-weight: 600;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    pointer-events: none;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9), 0 3px 14px rgba(79, 45, 63, 0.25);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    animation: gentlePulse 2.6s ease-in-out infinite alternate;
+}
+
+#bouquet.open .click-hint {
+    animation: none;
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 10px));
+}
+
+
+/* Gợi ý chạm tiếp sau khi vườn hoa nở */
+
+.reveal-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 20;
+    transform: translate(-50%, -50%);
+    color: #fff9ed;
+    font-size: clamp(18px, 3vw, 24px);
+    font-weight: 700;
+    letter-spacing: .08em;
+    white-space: nowrap;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    text-shadow: 0 2px 5px rgba(38, 42, 29, 0.72), 0 0 18px rgba(255, 248, 226, 0.9);
+    transition: opacity 1.2s ease, text-shadow 1.2s ease;
+}
+
+.reveal-hint.show {
+    opacity: 1;
+    pointer-events: auto;
+    animation: revealTextBlink 2.8s 1.2s ease-in-out infinite alternate;
+}
+
+.reveal-hint:hover {
+    text-shadow: 0 2px 14px rgba(62, 46, 53, 0.7), 0 0 30px rgba(255, 252, 236, 1);
+}
+
+
+
+/* ==========================================================================
+   2. LETTER SCENE (Lá thư & Vườn hoa ly nghệ thuật)
+   ========================================================================== */
+
+.letter-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.98) translateY(15px);
+    transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1), transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.letter-scene.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1) translateY(0);
+}
+
+.letter-scene.hidden {
+    display: none;
+}
+
+
+/* ==========================================================================
+   NỀN HOA LY MÀU NƯỚC (HÌNH 2) - PHỐI MÀU PASTEL HÀI HÒA & CHUYỂN ĐỘNG THỞ
+   ========================================================================== */
+
+.garden-bg-layer {
+    position: absolute;
+    inset: -3%;
+    width: 106%;
+    height: 106%;
+    background-image: url('./Picture/forest-meadow-bg.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    filter: brightness(0.88) saturate(0.9) contrast(1.02);
+    animation: gentleGardenBreathe 18s ease-in-out infinite alternate;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 1;
+}
+
+
+/* Lớp phủ chuyển sắc dịu êm làm mềm phông nền */
+
+.garden-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 50% 48%, rgba(255, 248, 239, 0.32) 0%, rgba(255, 248, 239, 0.13) 34%, transparent 70%),
+        linear-gradient(to bottom, rgba(27, 31, 20, 0.08) 0%, transparent 38%, rgba(22, 42, 25, 0.12) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.sunlight-rays {
+    position: absolute;
+    inset: -28% -20% 8%;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    background: repeating-conic-gradient(
+        from -24deg at 51% 8%,
+        transparent 0deg 8deg,
+        rgba(255, 239, 202, 0.13) 9deg 10deg,
+        transparent 11deg 19deg
+    );
+    mix-blend-mode: screen;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 82%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 82%);
+    animation: raysAwaken 2.4s 0.5s ease-out forwards, raysDrift 32s 2.9s ease-in-out infinite alternate;
+}
+
+
+/* ==========================================================================
+   CANVAS VƯỜN HOA LY ĐỒNG NHẤT (LUSH LILY MEADOW CANVAS)
+   ========================================================================== */
+
+.garden-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.meadow-critters {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.meadow-critter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: clamp(72px, 7vw, 96px);
+    height: clamp(52px, 5vw, 72px);
+    display: block;
+    opacity: 1;
+    line-height: 1;
+    pointer-events: auto;
+    cursor: pointer;
+    filter: drop-shadow(0 3px 3px rgba(24, 38, 19, 0.3));
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transition: filter 240ms ease;
+}
+
+.meadow-critter:hover,
+.meadow-critter.playing {
+    filter: drop-shadow(0 0 8px rgba(255, 227, 158, 0.8)) drop-shadow(0 3px 3px rgba(24, 38, 19, 0.3));
+}
+
+.meadow-critter:focus-visible {
+    outline: 2px solid rgba(255, 244, 206, 0.9);
+    outline-offset: 5px;
+    border-radius: 50%;
+}
+
+.critter-sprite {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+.meadow-critter.facing-flipped .critter-sprite {
+    transform: scaleX(-1);
+}
+
+.critter-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: 50% 85%;
+    will-change: transform;
+}
+
+.critter-sprite svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter:
+        drop-shadow(1px 0 0 rgba(255, 249, 235, 0.92))
+        drop-shadow(-1px 0 0 rgba(255, 249, 235, 0.92))
+        drop-shadow(0 1px 0 rgba(255, 249, 235, 0.92))
+        drop-shadow(0 -1px 0 rgba(255, 249, 235, 0.92));
+}
+
+.critter-leg,
+.critter-tail,
+.critter-ear,
+.critter-wing,
+.critter-tentacle,
+.critter-claw,
+.critter-flipper {
+    transform-box: fill-box;
+}
+
+.critter-leg {
+    transform-origin: 50% 12%;
+}
+
+.critter-leg.leg-a {
+    animation: legStep 0.38s ease-in-out infinite alternate;
+}
+
+.critter-leg.leg-b {
+    animation: legStep 0.38s 0.19s ease-in-out infinite alternate-reverse;
+}
+
+.critter-tail {
+    transform-origin: 90% 50%;
+}
+
+.critter-hearts {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    color: #ffb6c7;
+    font-size: 14px;
+    letter-spacing: 5px;
+    opacity: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translate(-50%, 8px) scale(0.65);
+    text-shadow: 0 1px 6px rgba(87, 41, 54, 0.52);
+}
+
+.meadow-critter.playing .critter-hearts,
+.meadow-critter:hover .critter-hearts,
+.meadow-critter:focus-visible .critter-hearts {
+    animation: heartsPop 1.05s ease-out both;
+}
+
+.critter-chick .critter-art { animation: chickBob 0.75s ease-in-out infinite; }
+.critter-mouse .critter-tail { animation: mouseTail 1.1s ease-in-out infinite alternate; }
+.critter-whale .critter-tail { animation: whaleTail 0.8s ease-in-out infinite alternate; }
+.critter-butterfly .critter-wing-left {
+    transform-origin: 100% 52%;
+    animation: butterflyWing 0.42s ease-in-out infinite alternate;
+}
+.critter-butterfly .critter-wing-right {
+    transform-origin: 0% 52%;
+    animation: butterflyWing 0.42s ease-in-out infinite alternate-reverse;
+}
+.critter-butterfly .critter-art { animation: butterflyFloat 1.8s ease-in-out infinite; }
+.critter-turtle .critter-leg { animation-duration: 0.55s; }
+.critter-rabbit .critter-art { animation: rabbitHop 1.8s ease-in-out infinite; }
+.critter-rabbit .critter-ear { transform-origin: 50% 90%; }
+.critter-rabbit .ear-a { animation: rabbitEar 1.8s ease-in-out infinite; }
+.critter-rabbit .ear-b { animation: rabbitEar 1.8s 0.08s ease-in-out infinite reverse; }
+.critter-pig .critter-leg { animation-duration: 0.42s; }
+.critter-pig .critter-tail { animation: pigTail 1s ease-in-out infinite alternate; }
+.critter-puppy .critter-leg { animation-duration: 0.34s; }
+.critter-puppy .critter-tail { animation: puppyTail 0.65s ease-in-out infinite alternate; }
+.critter-jellyfish .critter-art { animation: jellyBob 1.6s ease-in-out infinite; }
+.critter-jellyfish .critter-tentacle { animation: jellyTentacle 0.8s ease-in-out infinite alternate; }
+.critter-jellyfish .tentacle-a { animation-delay: -0.2s; }
+.critter-panda .critter-leg { animation-duration: 0.42s; }
+.critter-crab .critter-leg { animation: crabLeg 0.34s ease-in-out infinite alternate; }
+.critter-crab .critter-claw { animation: crabClaw 0.7s ease-in-out infinite alternate; }
+.critter-cat .critter-leg { animation-duration: 0.4s; }
+.critter-cat .critter-tail { animation: catTailFlick 0.9s ease-in-out infinite alternate; }
+.critter-fish .critter-tail { animation: fishTail 0.48s ease-in-out infinite alternate; }
+.critter-seal .critter-art { animation: sealBob 1.5s ease-in-out infinite; }
+.critter-seal .critter-flipper { animation: sealFlipper 0.9s ease-in-out infinite alternate; }
+.critter-frog .critter-art { animation: frogHop 2.25s ease-in-out infinite; }
+
+
+/* ==========================================================================
+   LÁ THƯ CHÍNH (TÁCH NỀN TRONG SUỐT)
+   ========================================================================== */
+
+.letter-wrapper {
+    position: relative;
+    z-index: 5;
+    width: min(480px, 68vh, 88vw);
+    aspect-ratio: 1 / 1;
+    container-type: inline-size;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: letterFloat 7s ease-in-out infinite alternate;
+}
+
+.letter-scene.visible .letter-wrapper {
+    animation: letterArrive 1.35s cubic-bezier(0.16, 1, 0.3, 1) both,
+               letterFloat 7s 1.35s ease-in-out infinite alternate;
+}
+
+.letter-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.letter-paper-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(0 20px 42px rgba(85, 55, 70, 0.24));
+    transition: opacity 0.5s ease;
+}
+
+
+/* Lớp chữ viết tay phủ trên các dòng kẻ */
+
+.letter-overlay {
+    position: absolute;
+    inset: 0 13%;
+    z-index: 2;
+}
+
+.letter-inner {
+    position: relative;
+    outline: none;
+    cursor: text;
+    display: grid;
+    grid-template-rows: repeat(11, 6.6cqw);
+    padding-top: 12cqw;
+}
+
+.letter-header {
+    font-family: 'Playfair Display', Georgia, "Times New Roman", serif;
+    height: 6.6cqw;
+    font-size: clamp(14px, 4.3cqw, 24px);
+    font-weight: 600;
+    color: var(--text-romantic);
+    text-align: center;
+    line-height: 6.6cqw;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.letter-body {
+    display: contents;
+}
+
+.letter-body > span {
+    display: block;
+    height: 6.6cqw;
+    font-family: 'Lora', Georgia, "Times New Roman", serif;
+    font-size: clamp(12px, 3.35cqw, 19px);
+    line-height: 6.6cqw;
+    color: var(--text-primary);
+    text-align: center;
+    font-weight: 500;
+    letter-spacing: 0;
+    white-space: nowrap;
+}
+
+.letter-footer {
+    height: 6.6cqw;
+    font-family: 'Lora', Georgia, "Times New Roman", serif;
+    font-size: clamp(12px, 3.2cqw, 18px);
+    font-style: italic;
+    font-weight: 600;
+    color: var(--accent-pink);
+    text-align: right;
+    line-height: 6.6cqw;
+    padding-right: 8px;
+    white-space: nowrap;
+}
+
+
+/* Ánh sáng lung linh quanh lá thư */
+
+.ambient-glow {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    width: 650px;
+    height: 650px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 235, 194, 0.38) 0%, rgba(255, 230, 210, 0.16) 35%, rgba(255, 230, 240, 0) 72%);
+    pointer-events: none;
+    z-index: 3;
+    animation: ambientBreathe 5s ease-in-out infinite alternate;
+}
+
+/* ==========================================================================
+   3. SPOTIFY MINI PLAYER CARD (LANA DEL REY - RADIO)
+   ========================================================================== */
+
+.spotify-widget {
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 100;
+}
+
+.spotify-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(18, 18, 18, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 10px 14px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35), 0 0 25px rgba(217, 111, 146, 0.18);
+    color: #ffffff;
+    transition: transform 0.3s cubic-bezier(0.18, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.spotify-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 42px rgba(0, 0, 0, 0.42), 0 0 30px rgba(217, 111, 146, 0.26);
+}
+
+
+/* Ảnh bìa album */
+
+.spotify-cover-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    background: #282828;
+}
+
+.spotify-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+/* Thông tin bài hát */
+
+.spotify-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 95px;
+}
+
+.spotify-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.01em;
+}
+
+.spotify-artist {
+    font-size: 12px;
+    font-weight: 500;
+    color: #b3b3b3;
+    margin-bottom: 3px;
+    white-space: nowrap;
+}
+
+.spotify-badge {
+    display: inline-block;
+    align-self: flex-start;
+    background: #333333;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+
+/* Nút điều khiển bên phải */
+
+.spotify-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 6px;
+    margin-left: 6px;
+}
+
+
+/* Logo Spotify */
+
+.spotify-brand {
+    color: #e89ab1;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+}
+
+.spotify-brand:hover {
+    opacity: 1;
+}
+
+.spotify-icon {
+    width: 18px;
+    height: 18px;
+}
+
+
+/* Hàng nút controls: (+), (...), và nút Play */
+
+.spotify-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.spotify-btn-icon {
+    background: transparent;
+    border: none;
+    color: #b3b3b3;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+    padding: 0;
+}
+
+.spotify-btn-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.spotify-btn-icon:hover {
+    color: #ffffff;
+    transform: scale(1.12);
+}
+
+.spotify-btn-icon.active {
+    color: #e89ab1;
+}
+
+
+/* Nút Play to hình tròn màu trắng */
+
+.spotify-play-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s cubic-bezier(0.18, 1, 0.3, 1), background 0.2s ease;
+    padding: 0;
+}
+
+.spotify-play-btn:hover {
+    transform: scale(1.08);
+    background: #f4f4f4;
+}
+
+.spotify-play-btn:active {
+    transform: scale(0.96);
+}
+
+.spotify-play-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.play-svg {
+    margin-left: 2px;
+}
+
+
+/* Nốt nhạc bay lơ lửng */
+
+.floating-notes-container {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    pointer-events: none;
+}
+
+.floating-note {
+    position: absolute;
+    font-size: 16px;
+    color: #d86990;
+    opacity: 0;
+    pointer-events: none;
+    animation: floatUp 3.2s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+
+
+/* ==========================================================================
+   4. KEYFRAME ANIMATIONS
+   ========================================================================== */
+
+@keyframes gentleGardenBreathe {
+    0% {
+        transform: scale(1) translate(0%, 0%);
+    }
+    50% {
+        transform: scale(1.025) translate(-0.8%, -0.6%);
+    }
+    100% {
+        transform: scale(1.01) translate(0.6%, 0.4%);
+    }
+}
+
+@keyframes raysAwaken {
+    from {
+        opacity: 0;
+        transform: translateY(-2%) rotate(-2deg);
+    }
+    to {
+        opacity: 0.72;
+        transform: translateY(0) rotate(0);
+    }
+}
+
+@keyframes raysDrift {
+    from {
+        transform: translateX(-1.2%) rotate(-1deg);
+    }
+    to {
+        transform: translateX(1.2%) rotate(1deg);
+    }
+}
+
+@keyframes gentlePulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.97);
+        opacity: 0.62;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.03);
+        opacity: 1;
+    }
+}
+
+@keyframes revealTextBlink {
+    0% {
+        opacity: 0.62;
+        text-shadow: 0 2px 10px rgba(62, 46, 53, 0.5), 0 0 18px rgba(255, 252, 236, 0.75);
+    }
+    100% {
+        opacity: 1;
+        text-shadow: 0 2px 14px rgba(62, 46, 53, 0.68), 0 0 30px rgba(255, 252, 236, 1);
+    }
+}
+
+@keyframes rabbitHop {
+    0%, 58%, 100% { transform: translateY(0) scaleY(1); }
+    68% { transform: translateY(-15px) scaleY(1.08); }
+    84% { transform: translateY(0) scaleY(0.9); }
+}
+
+@keyframes frogHop {
+    0%, 58%, 100% { transform: translateY(0) scaleY(1); }
+    70% { transform: translateY(-16px) scaleY(1.1); }
+    84% { transform: translateY(0) scaleY(0.88); }
+}
+
+@keyframes catTailFlick {
+    from { transform: rotate(-25deg); }
+    to { transform: rotate(30deg); }
+}
+
+@keyframes legStep {
+    from { transform: rotate(-24deg) translateY(-1px); }
+    to { transform: rotate(24deg) translateY(1px); }
+}
+
+@keyframes chickBob {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-3px) rotate(-2deg); }
+}
+
+@keyframes mouseTail {
+    from { transform: rotate(-16deg); }
+    to { transform: rotate(17deg); }
+}
+
+@keyframes whaleTail {
+    from { transform: rotate(-13deg); }
+    to { transform: rotate(15deg); }
+}
+
+@keyframes butterflyWing {
+    from { transform: scaleX(1) rotate(0); }
+    to { transform: scaleX(0.42) rotate(6deg); }
+}
+
+@keyframes butterflyFloat {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-5px) rotate(1deg); }
+}
+
+@keyframes rabbitHop {
+    0%, 60%, 100% { transform: translateY(0) scaleY(1); }
+    72% { transform: translateY(-13px) scaleY(1.06); }
+    86% { transform: translateY(0) scaleY(0.92); }
+}
+
+@keyframes rabbitEar {
+    0%, 60%, 100% { transform: rotate(0); }
+    72% { transform: rotate(-12deg); }
+    86% { transform: rotate(7deg); }
+}
+
+@keyframes pigTail {
+    from { transform: rotate(-20deg); }
+    to { transform: rotate(20deg); }
+}
+
+@keyframes puppyTail {
+    from { transform: rotate(-30deg); }
+    to { transform: rotate(32deg); }
+}
+
+@keyframes jellyBob {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.04, 0.96); }
+}
+
+@keyframes jellyTentacle {
+    from { transform: rotate(-9deg); }
+    to { transform: rotate(10deg); }
+}
+
+@keyframes crabLeg {
+    from { transform: rotate(-13deg); }
+    to { transform: rotate(13deg); }
+}
+
+@keyframes crabClaw {
+    from { transform: rotate(-10deg); }
+    to { transform: rotate(12deg); }
+}
+
+@keyframes catTailFlick {
+    from { transform: rotate(-25deg); }
+    to { transform: rotate(30deg); }
+}
+
+@keyframes fishTail {
+    from { transform: rotate(-20deg); }
+    to { transform: rotate(20deg); }
+}
+
+@keyframes sealBob {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-4px) rotate(-2deg); }
+}
+
+@keyframes sealFlipper {
+    from { transform: rotate(-8deg); }
+    to { transform: rotate(18deg); }
+}
+
+@keyframes letterFloat {
+    0% {
+        transform: translateY(0px) rotate(-0.3deg);
+    }
+    100% {
+        transform: translateY(-7px) rotate(0.4deg);
+    }
+}
+
+@keyframes letterArrive {
+    from {
+        opacity: 0;
+        filter: blur(8px);
+        transform: translateY(34px) scale(0.88) rotate(-2deg);
+    }
+    to {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0) scale(1) rotate(0);
+    }
+}
+
+@keyframes ambientBreathe {
+    0% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    100% {
+        opacity: 0.95;
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0.6) rotate(-10deg);
+    }
+    15% {
+        opacity: 0.9;
+        transform: translate(-10px, -20px) scale(1) rotate(5deg);
+    }
+    80% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-35px, -110px) scale(1.2) rotate(20deg);
+    }
+}
+
+@keyframes heartsPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 8px) scale(0.65);
+    }
+    25% {
+        opacity: 1;
+        transform: translate(-50%, -2px) scale(1.08);
+    }
+    75% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -24px) scale(0.9);
+    }
+}
+
+/* ==========================================================================
+   5. RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 600px) {
+    .letter-wrapper {
+        width: min(94vw, 78svh);
+    }
+    .letter-overlay {
+        inset: 0 10%;
+    }
+    .spotify-widget {
+        top: max(10px, env(safe-area-inset-top));
+        right: max(10px, env(safe-area-inset-right));
+        left: max(10px, env(safe-area-inset-left));
+        display: flex;
+        justify-content: center;
+    }
+    .spotify-card {
+        padding: 7px 10px;
+        gap: 9px;
+        width: 100%;
+        max-width: 360px;
+        border-radius: 14px;
+    }
+    .spotify-cover-wrap {
+        width: 40px;
+        height: 40px;
+    }
+    .spotify-title {
+        font-size: 12px;
+    }
+    .spotify-artist {
+        font-size: 10px;
+    }
+    .spotify-badge {
+        font-size: 8px;
+    }
+    .spotify-actions {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+    }
+    .spotify-brand {
+        display: none;
+    }
+    .spotify-controls {
+        gap: 7px;
+    }
+    .spotify-btn-icon {
+        width: 24px;
+        height: 24px;
+    }
+    .spotify-play-btn {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+    }
+    .spotify-play-btn svg {
+        width: 17px;
+        height: 17px;
+    }
+    .click-hint {
+        max-width: calc(100vw - 32px);
+        font-size: clamp(15px, 4.8vw, 19px);
+        letter-spacing: .035em;
+        text-align: center;
+    }
+    .reveal-hint {
+        font-size: clamp(17px, 5vw, 22px);
+        letter-spacing: .055em;
+    }
+    .meadow-critter {
+        width: clamp(48px, 14vw, 66px);
+        height: clamp(36px, 10vw, 50px);
+    }
+    .letter-header {
+        font-size: clamp(12px, 4.1cqw, 20px);
+    }
+    .letter-body > span,
+    .letter-footer {
+        font-size: clamp(10px, 3.25cqw, 16px);
+    }
+}
+
+@media (max-width: 360px) {
+    .letter-wrapper {
+        width: min(96vw, 76svh);
+    }
+    .letter-overlay {
+        inset: 0 8%;
+    }
+    .letter-header {
+        font-size: clamp(11px, 3.8cqw, 17px);
+    }
+    .letter-body > span,
+    .letter-footer {
+        font-size: clamp(9px, 3cqw, 14px);
+    }
+    .spotify-info {
+        min-width: 0;
+    }
+    .more-btn {
+        display: none;
+    }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+    .letter-wrapper {
+        width: min(74vw, 88svh);
+    }
+    .spotify-widget {
+        top: max(8px, env(safe-area-inset-top));
+        right: max(8px, env(safe-area-inset-right));
+        left: auto;
+    }
+    .spotify-card {
+        width: auto;
+    }
+    .spotify-brand {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .garden-bg-layer,
+    .sunlight-rays,
+    .letter-wrapper,
+    .ambient-glow {
+        animation: none !important;
+    }
+    .critter-art,
+    .critter-tail,
+    .critter-wing,
+    .critter-wave-paw {
+        animation-duration: 3s !important;
+    }
+    .letter-scene,
+    .letter-scene.visible {
+        transition-duration: 0.01ms;
+    }
+}
